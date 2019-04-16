@@ -629,6 +629,7 @@ static NSString *DEFAULTS_LEANPLUM_ENABLED_PUSH = @"__Leanplum_enabled_push";
         [_popupView setOpaque:NO];
         ((UIWebView *)_popupView).scrollView.scrollEnabled = NO;
         ((UIWebView *)_popupView).scrollView.bounces = NO;
+        ((UIWebView *)_popupView).scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
     }
     
     if (!isWeb) {
@@ -1013,9 +1014,6 @@ static NSString *DEFAULTS_LEANPLUM_ENABLED_PUSH = @"__Leanplum_enabled_push";
     // Calculate the height. Fullscreen by default.
     CGFloat htmlHeight = [[context numberNamed:LPMT_ARG_HTML_HEIGHT] doubleValue];
     BOOL isFullscreen = htmlHeight < 1;
-    UIEdgeInsets safeAreaInsets = [self safeAreaInsets];
-    CGFloat bottomSafeAreaHeight = safeAreaInsets.bottom;
-    BOOL isIPhoneX = statusBarHeight > 40 || safeAreaInsets.left > 40 || safeAreaInsets.right > 40;
     
     // Banner logic.
     if (!isFullscreen) {
@@ -1053,23 +1051,7 @@ static NSString *DEFAULTS_LEANPLUM_ENABLED_PUSH = @"__Leanplum_enabled_push";
         }
         
         CGFloat htmlX = (screenWidth - htmlWidth) / 2.;
-        // Offset iPhoneX's safe area.
-        if (isIPhoneX) {
-            CGFloat bottomDistance = screenHeight - (htmlY + htmlHeight);
-            if (bottomDistance < bottomSafeAreaHeight) {
-                htmlHeight += bottomSafeAreaHeight;
-            }
-        }
         _popupGroup.frame = CGRectMake(htmlX, htmlY, htmlWidth, htmlHeight);
-        
-    } else if (isIPhoneX) {
-        _popupGroup.frame = CGRectMake(safeAreaInsets.left, safeAreaInsets.top,
-                                       screenWidth - safeAreaInsets.left - safeAreaInsets.right,
-                                       screenHeight - safeAreaInsets.top - bottomSafeAreaHeight);
-        
-        NSLog( @"%@", NSStringFromCGRect(_popupGroup.frame) );
-        NSLog(@"%f, %f", screenWidth, screenHeight);
-        NSLog(@"%@", NSStringFromUIEdgeInsets(safeAreaInsets));
     }
     
     _popupView.frame = _popupGroup.bounds;
